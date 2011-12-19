@@ -20,7 +20,7 @@ local table = require('table')
 --]]
 
 async.forEach = function(arr, iterator, callback)
-  if not #arr then
+  if #arr == 0 then
     return callback()
   end
   local completed = 0

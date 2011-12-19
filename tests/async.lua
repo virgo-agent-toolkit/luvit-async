@@ -19,10 +19,10 @@ end
 function test_forEachEmpty(test)
   local args = {}
   async.forEach({}, function(x, callback)
-    assert.True(false, 'iterator should not be called')
+    asserts.True(false, 'iterator should not be called')
     callback()
   end, function(err)
-    assert.True(true, "should be called")
+    asserts.True(true, "should be called")
   end)
 end
 
