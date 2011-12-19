@@ -1,4 +1,4 @@
 .PHONY: test
 
 test:
-	@LUA_PATH="modules/?/init.lua;tests/?.lua;?;?.lua" lua tests/async.lua
+	@LUA_PATH="modules/?/init.lua;tests/?.lua;?;?.lua" luvit tests/async.lua

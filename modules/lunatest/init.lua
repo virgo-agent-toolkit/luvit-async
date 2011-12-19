@@ -38,6 +38,12 @@
 local debug, io, math, os, string, table =
    debug, io, math, os, string, table
 
+local string = require('string')
+local os = require('os')
+local io = require('io')
+local math = require('math')
+local table = require('table')
+
 -- required core global functions
 local assert, error, ipairs, pairs, pcall, print, setmetatable, tonumber =
    assert, error, ipairs, pairs, pcall, print, setmetatable, tonumber
@@ -453,7 +459,6 @@ end
 -- ####################
 
 ---Unit testing module, with extensions for random testing.
-module("lunatest")
 
 VERSION = "0.91"
 
@@ -1090,6 +1095,18 @@ local function assert_random(opt, f, ...)
    report_trial(r, opt)
 end
 
+function assert_array_equal(a, b)
+  a = table.concat(a)
+  b = table.concat(b)
+  assert_string(a, b)
+end
 
 -- Put it in the same namespace as the other assert_ functions.
 _importing_env.assert_random = assert_random
+
+local exports = {}
+exports.asserts = {}
+exports.asserts.True = assert_true
+exports.asserts.equal = assert_equal
+exports.asserts.array_equal = assert_array_equal
+return exports

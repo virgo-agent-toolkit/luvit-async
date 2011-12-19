@@ -1,5 +1,7 @@
 local async = {}
 
+local table = require('table')
+
 --[[
 --
 -- series -- todo
