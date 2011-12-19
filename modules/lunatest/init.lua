@@ -1092,5 +1092,6 @@ exports.asserts = {}
 exports.asserts.True = assert_true
 exports.asserts.equal = assert_equal
 exports.asserts.array_equal = assert_array_equal
+exports.asserts.not_nil = assert_not_nil
 exports.run = run
 return exports

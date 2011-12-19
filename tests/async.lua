@@ -28,8 +28,12 @@ exports['test_forEachEmpty'] = function(test)
   end)
 end
 
-table.foreach(exports, function(k)
-  print(k)
-end)
+exports['test_forEachError'] = function(test)
+  async.forEach({1,2,3}, function(x, callback)
+    callback('error');
+  end, function(err)
+    asserts.not_nil(err)
+  end);
+end
 
 lunatest.run(exports)
