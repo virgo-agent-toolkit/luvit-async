@@ -13,7 +13,7 @@
 --
 -- The above copyright notice and this permission notice shall be
 -- included in all copies or substantial portions of the Software.
--- 
+--
 -- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 -- EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 -- OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -35,25 +35,11 @@
 ------------
 
 -- standard libraries used
-local debug, io, math, os, string, table =
-   debug, io, math, os, string, table
-
 local string = require('string')
 local os = require('os')
 local io = require('io')
 local math = require('math')
 local table = require('table')
-
--- required core global functions
-local assert, error, ipairs, pairs, pcall, print, setmetatable, tonumber =
-   assert, error, ipairs, pairs, pcall, print, setmetatable, tonumber
-local fmt, tostring, type, unpack = string.format, tostring, type, unpack
-local getmetatable, rawget, setmetatable, xpcall =
-   getmetatable, rawget, setmetatable, xpcall
-local exit, next, require = os.exit, next, require
-
--- Get containing env, Lua 5.1-style
-local getenv = getfenv
 
 ---Use lhf's random, if available. It provides an RNG with better
 -- statistical properties, and it gives consistent values across OSs.
@@ -65,8 +51,7 @@ local random = random
 pcall(require, "socket")
 local now = socket and socket.gettime
 
--- Get env immediately wrapping module, to put assert_ tests there.
-local _importing_env = getenv()
+local fmt = string.format
 
 -- Check command line arguments:
 -- -v / --verbose, default to verbose_hooks.
@@ -108,7 +93,7 @@ end
 -- ###########
 
 local function msec(t)
-   if t and type(t) == "number" then 
+   if t and type(t) == "number" then
       return fmt(" (%.2fms)", t * 1000)
    else
       return ""
@@ -448,7 +433,7 @@ end
 --        "10,30 [aeiou]" means between 10-30 vowels.<br>
 --    function: Just call (as f()) and return result.<br>
 --    table or userdata: Call v.__random() and return result.<br>
--- @usage 
+-- @usage
 function assert_random(opt, f, ...)
    -- Stub. Exported to the same namespace, but code appears below.
 end
@@ -587,7 +572,7 @@ end
 ---Add a file as a test suite.
 -- @param modname The module to load as a suite. The file is
 -- interpreted in the same manner as require "modname".
--- Which functions are tests is determined by is_test_key(name). 
+-- Which functions are tests is determined by is_test_key(name).
 function suite(modname)
    local ok, err = pcall(
       function()
@@ -623,7 +608,7 @@ local function run_test(name, test, suite, hooks, setup, teardown)
    if is_func(hooks.pre_test) then hooks.pre_test(name) end
    local t_pre, t_post, elapsed      --timestamps. requires luasocket.
    if now then t_pre = now() end
-   
+
    local ok, err = xpcall(
       function()
          if is_func(setup) then setup(name) end
@@ -686,7 +671,7 @@ local function run_suite(hooks, opts, results, suite_filter, sname, tests)
             results.err[sname] = Error{msg=msg}
          end
       end
-      
+
       if run_suite and count(tests) > 0 then
          local setup, teardown = tests.setup, tests.teardown
          tests.setup, tests.teardown = nil, nil
@@ -711,7 +696,7 @@ end
 --    matching this pattern.
 -- @usage If no hooks are provided and arg[1] == "-v", the
 -- verbose_hooks will be used.
-function run(hooks, suite_filter)
+function run(mod, hooks, suite_filter)
    -- also check the namespace it's run in
    local opts = cmd_line_switches(lt_arg)
 
@@ -731,8 +716,7 @@ function run(hooks, suite_filter)
    if now then results.t_pre = now() end
 
    -- If it's all in one test file, check its environment, too.
-   local env = getenv(3)
-   if env then suites.main = get_tests(env) end
+   suites.main = get_tests(mod)
 
    if hooks.begin then hooks.begin(results, suites) end
 
@@ -891,7 +875,7 @@ function random_string(spec)
    if diff == 0 then ct = info.low else
       ct = random_int(diff) + info.low
    end
-   
+
    local acc = {}
    for i=1,ct do
       acc[i] = info.gen(self)
@@ -1023,7 +1007,7 @@ local function run_randtest(seed, f, args, r, limit)
       else error("unmatched")
       end
    end
-   
+
    seed = new_seed(limit)
    r.ts = r.ts + 1
    local str_args = {}
@@ -1066,7 +1050,7 @@ local function assert_random(opt, f, ...)
       f = opt
       opt = {}
    end
-      
+
    setmetatable(opt, { __index=random_test_defaults })
 
    local seed = opt.seed or os.time()
@@ -1091,7 +1075,7 @@ local function assert_random(opt, f, ...)
       end
    end
    local overall_status = (passed == count and "PASS" or "FAIL")
-   
+
    report_trial(r, opt)
 end
 
@@ -1101,12 +1085,12 @@ function assert_array_equal(a, b)
   assert_string(a, b)
 end
 
--- Put it in the same namespace as the other assert_ functions.
-_importing_env.assert_random = assert_random
+-- Exports
 
 local exports = {}
 exports.asserts = {}
 exports.asserts.True = assert_true
 exports.asserts.equal = assert_equal
 exports.asserts.array_equal = assert_array_equal
+exports.run = run
 return exports
