@@ -36,4 +36,16 @@ exports['test_forEachError'] = function(test)
   end);
 end
 
+exports['test_forEachSeries'] = function(test)
+  local args = {}
+  async.forEachSeries({1,3,2}, function(x, callback)
+    Timer.set_timeout(x*25, function()
+      table.insert(args, 1, x)
+      callback()
+    end)
+  end, function(err)
+    asserts.array_equal(args, {1, 3, 2})
+  end)
+end
+
 lunatest.run(exports)
