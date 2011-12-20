@@ -102,4 +102,18 @@ exports['test_forEachLimitEmptyArray'] = function(test, asserts)
   end)
 end
 
+exports['test_forEachLimitExceedsSize'] = function(test, asserts)
+  local args = {}
+  local arr = {0,1,2,3,4,5,6,7,8,9}
+  async.forEachLimit(arr, 20, function(x, callback)
+    Timer.set_timeout(x*5, function()
+      table.insert(args, x)
+      callback()
+    end)
+  end, function(err)
+    asserts.array_equal(args, arr)
+    test.done()
+  end)
+end
+
 bourbon.run(exports)
