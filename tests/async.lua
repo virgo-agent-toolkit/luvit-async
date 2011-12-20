@@ -21,10 +21,10 @@ end
 exports['test_forEachEmpty'] = function(test, asserts)
   local args = {}
   async.forEach({}, function(x, callback)
-    asserts.True(false, 'iterator should not be called')
+    asserts.ok(false, 'iterator should not be called')
     callback()
   end, function(err)
-    asserts.True(true, "should be called")
+    asserts.ok(true, "should be called")
     test.done()
   end)
 end
@@ -47,6 +47,19 @@ exports['test_forEachSeries'] = function(test, asserts)
     end)
   end, function(err)
     asserts.array_equal(args, {1,3,2})
+    test.done()
+  end)
+end
+
+exports['test_forEachError'] = function(test, asserts)
+  local args = {}
+  async.forEachSeries({1,2,3}, function(x, callback)
+    table.insert(args, x)
+    callback({"error"})
+  end, function(err)
+    asserts.ok(err ~= nil)
+    asserts.ok(#args == 1)
+    asserts.ok(args[1] == 1)
     test.done()
   end)
 end

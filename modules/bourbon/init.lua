@@ -12,7 +12,7 @@ asserts.equal = function(a, b)
   checked = checked + 1
   assert(a == b)
 end
-asserts.True = function(a)
+asserts.ok = function(a)
   checked = checked + 1
   assert(a)
 end
