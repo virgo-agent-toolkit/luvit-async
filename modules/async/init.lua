@@ -405,11 +405,61 @@ async.series = function(tasks, callback)
   callback = callback or function() end
     async.mapSeries(tasks, function(fn, callback)
       if fn then
-        fn(function(err, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
-          callback(err, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
+        fn(function(...)
+          callback(unpack({...}))
         end)
       end
     end, callback)
+end
+
+-- Iterator
+async.iterator = function(tasks)
+  local makeCallback
+  makeCallback = function(index)
+    local it = {}
+    it.Next = function()
+      if index < #tasks then
+        return makeCallback(index + 1)
+      else
+        return nil
+      end
+    end
+    it.run = function(...)
+      if #tasks > 0 then
+        tasks[index](unpack({...}))
+      end
+      return it.Next()
+    end
+    return it
+  end
+  return makeCallback(1)
+end
+
+-- Waterfall
+async.waterfall = function(tasks, callback)
+  local wrapIterator
+  if #tasks == 0 then
+    return callback()
+  end
+  callback = callback or function() end
+  wrapIterator = function(iterator)
+    return function(err, ...)
+      if err then
+        callback(err)
+        callback = function() end
+      else
+        local args = {...}
+        local _next = iterator.Next()
+        if _next then
+          table.insert(args, wrapIterator(_next))
+        else
+          table.insert(args, callback)
+        end
+        iterator.run(unpack(args))
+      end
+    end
+  end
+  wrapIterator(async.iterator(tasks))()
 end
 
 return async

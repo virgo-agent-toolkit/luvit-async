@@ -247,4 +247,66 @@ exports['test_seriesObject'] = function(test, asserts)
   end)
 end
 
+exports['test_iterator'] = function(test, asserts)
+  local call_order = {}
+  local iterator = async.iterator({
+    function()
+      table.insert(call_order, 1)
+    end,
+    function(arg1)
+      asserts.equals(arg1, 'arg1')
+      table.insert(call_order, 2)
+    end,
+    function(arg1, arg2)
+      asserts.equals(arg1, 'arg1')
+      asserts.equals(arg2, 'arg2')
+      table.insert(call_order, 3)
+    end
+  })
+  iterator.run()
+  asserts.array_equals(call_order, {1})
+  local iterator2 = iterator.run()
+  asserts.array_equals(call_order, {1, 1})
+  local iterator3 = iterator2.run('arg1')
+  asserts.array_equals(call_order, {1, 1, 2})
+  local iterator4 = iterator3.run('arg1', 'arg2')
+  asserts.array_equals(call_order, {1, 1, 2, 3})
+  asserts.equals(iterator4, nil)
+  test.done()
+end
+
+exports['test_waterfall'] = function(test, asserts)
+  local call_order = {}
+  async.waterfall({
+    function(callback)
+      table.insert(call_order, 'fn1')
+      Timer.set_timeout(0, function()
+        callback(nil, 'one', 'two')
+      end)
+    end,
+    function(arg1, arg2, callback)
+      table.insert(call_order, 'fn2')
+      asserts.equals(arg1, 'one')
+      asserts.equals(arg2, 'two')
+      Timer.set_timeout(25, function()
+        callback(nil, arg1, arg2, 'three')
+      end)
+    end,
+    function(arg1, arg2, arg3, callback)
+      table.insert(call_order, 'fn3')
+      asserts.equals(arg1, 'one')
+      asserts.equals(arg2, 'two')
+      asserts.equals(arg3, 'three')
+      callback(nil, 'four')
+    end,
+    function(arg4, callback)
+      table.insert(call_order, 'fn4')
+      asserts.array_equals(call_order, {'fn1', 'fn2', 'fn3', 'fn4'})
+      callback(nil, 'test')
+    end
+  }, function(err)
+    test.done()
+  end)
+end
+
 bourbon.run(exports)
