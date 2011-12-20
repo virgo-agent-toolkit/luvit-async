@@ -391,5 +391,19 @@ async.Until = function(test, iterator, callback)
   end
 end
 
+-- Series
+async.series = function(tasks, callback)
+  callback = callback or function(...) end
+  if tasks[1] then
+    async.mapSeries(tasks, function(fn, callback)
+      if fn then
+        fn(function(err, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
+          callback(err, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
+        end)
+      end
+    end, callback)
+  else
+  end
+end
 
 return async

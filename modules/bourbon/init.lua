@@ -16,10 +16,14 @@ asserts.ok = function(a)
   checked = checked + 1
   assert(a)
 end
-asserts.array_equal = function(a, b)
+asserts.equals = function(a, b)
+  checked = checked + 1
+  assert(a == b)
+end
+asserts.array_equals = function(a, b)
   checked = checked + 1
   assert(#a == #b)
-  for k=0, #a do
+  for k=1, #a do
     assert(a[k] == b[k])
   end
 end
