@@ -188,4 +188,12 @@ exports['test_series'] = function(test, asserts)
   end)
 end
 
+exports['test_seriesEmptyArray'] = function(test, asserts)
+  async.series({}, function(err, results)
+    asserts.equals(err, nil)
+    asserts.array_equals(results, {})
+    test.done()
+  end)
+end
+
 bourbon.run(exports)

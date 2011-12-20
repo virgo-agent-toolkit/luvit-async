@@ -393,7 +393,10 @@ end
 
 -- Series
 async.series = function(tasks, callback)
-  callback = callback or function(...) end
+  callback = callback or function() end
+  if #tasks == 0 then
+    return callback(nil, {})
+  end
   if tasks[1] then
     async.mapSeries(tasks, function(fn, callback)
       if fn then
