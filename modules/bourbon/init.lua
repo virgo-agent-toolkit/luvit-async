@@ -3,10 +3,30 @@ local table = require 'table'
 local string = require 'string'
 local math = require 'math'
 
-local TS = tostring
 local fmt = string.format
 
 local checked = 0
+
+local asserts = {}
+asserts.equal = function(a, b)
+  checked = checked + 1
+  assert(a == b)
+end
+asserts.True = function(a)
+  checked = checked + 1
+  assert(a)
+end
+asserts.array_equal = function(a, b)
+  checked = checked + 1
+  assert(#a == #b)
+  for k=0, #a do
+    assert(a[k] == b[k])
+  end
+end
+asserts.not_nil = function(a)
+  checked = checked + 1
+  assert(a ~= nil)
+end
 
 function is_test_key(k)
   return type(k) == "string" and k:match("_*test.*")
@@ -33,7 +53,7 @@ local run_test = function(runner, callback)
   test_baton.done = function()
     callback()
   end
-  runner.func(test_baton)
+  runner.func(test_baton, asserts)
 end
 
 local run = function(mods)
@@ -47,23 +67,16 @@ local run = function(mods)
     run_test(runner, callback)
   end, function(err)
     if err then
+      p(err)
       return
     end
-    p (fmt("Executed %s asserts", checked))
+    p(fmt("Executed %s asserts", checked))
   end)
 end
 
+-- Exports
+
 local exports = {}
-exports.asserts = {}
-exports.asserts.equal = function(a, b) checked = checked + 1 end
-exports.asserts.True = function(a) checked = checked + 1 end
-exports.asserts.array_equal= function(a, b)
-  checked = checked + 1
-  assert(#a == #b)
-  for k=0, #a do
-    assert(a[k] == b[k])
-  end
-end
-exports.asserts.not_nil = function(a) checked = checked + 1 end
+exports.asserts = asserts
 exports.run = run
 return exports

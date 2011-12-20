@@ -2,11 +2,10 @@ local table = require 'table'
 local async = require "async"
 local Timer = require 'timer'
 local bourbon = require 'bourbon'
-local asserts = bourbon.asserts
 
 local exports = {}
 
-exports['test_forEach'] = function(test)
+exports['test_forEach'] = function(test, asserts)
   local args = {}
   async.forEach({1,3,2}, function(x, callback)
     Timer.set_timeout(x*25, function()
@@ -19,7 +18,7 @@ exports['test_forEach'] = function(test)
   end)
 end
 
-exports['test_forEachEmpty'] = function(test)
+exports['test_forEachEmpty'] = function(test, asserts)
   local args = {}
   async.forEach({}, function(x, callback)
     asserts.True(false, 'iterator should not be called')
@@ -30,7 +29,7 @@ exports['test_forEachEmpty'] = function(test)
   end)
 end
 
-exports['test_forEachError'] = function(test)
+exports['test_forEachError'] = function(test, asserts)
   async.forEach({1,2,3}, function(x, callback)
     callback('error');
   end, function(err)
@@ -39,7 +38,7 @@ exports['test_forEachError'] = function(test)
   end);
 end
 
-exports['test_forEachSeries'] = function(test)
+exports['test_forEachSeries'] = function(test, asserts)
   local args = {}
   async.forEachSeries({1,3,2}, function(x, callback)
     Timer.set_timeout(x*23, function()
