@@ -76,7 +76,7 @@ async.reduce = function(arr, memo, iterator, callback)
 end
 
 async.forEachLimit = function(arr, limit, iterator, callback)
-  if not arr or #arr == 0 then
+  if #arr == 0 or limit <= 0 then
     return callback()
   end
   local completed = 0
