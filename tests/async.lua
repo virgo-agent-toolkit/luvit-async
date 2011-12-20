@@ -346,4 +346,49 @@ exports['test_waterfallAsync'] = function(test, asserts)
   })
 end
 
+exports['test_waterfallError'] = function(test, asserts)
+  async.waterfall({
+    function(callback)
+      callback('error')
+    end,
+    function(callback)
+      asserts.ok(false, 'Function should not be called')
+      callback()
+    end
+  }, function(err)
+    asserts.equals(err, 'error')
+    test.done()
+  end)
+end
+
+exports['test_waterfallMultipleCallbacks'] = function(test, asserts)
+  local call_order = {}
+  local arr
+  arr = {
+    function(callback)
+      table.insert(call_order, 1)
+      -- Call the callback twice, should call function 2 twice
+      callback(null, 'one', 'two')
+      callback(null, 'one', 'two')
+    end,
+    function(arg1, arg2, callback)
+      table.insert(call_order, 2)
+      callback(nil, arg1, arg2, 'three')
+    end,
+    function(arg1, arg2, arg3, callback)
+      table.insert(call_order, 3)
+      callback(nil, 'four')
+    end,
+    function(arg4)
+      table.insert(call_order, 4)
+      arr[4] = function()
+        table.insert(call_order, 4)
+        asserts.array_equals(call_order, {1,2,2,3,3,4,4});
+        test.done()
+      end
+    end
+  }
+  async.waterfall(arr)
+end
+
 bourbon.run(exports)
