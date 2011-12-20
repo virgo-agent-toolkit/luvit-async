@@ -212,4 +212,11 @@ exports['test_seriesError'] = function(test, asserts)
   end)
 end
 
+exports['test_seriesNoCallback'] = function(test, asserts)
+  async.series({
+    function(callback) callback() end,
+    function(callback) callback() ; test.done() end
+  })
+end
+
 bourbon.run(exports)
