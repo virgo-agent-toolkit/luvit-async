@@ -391,4 +391,35 @@ exports['test_waterfallMultipleCallbacks'] = function(test, asserts)
   async.waterfall(arr)
 end
 
+exports['test_parallel'] = function(test, asserts)
+  local call_order = {}
+  async.parallel({
+    function(callback)
+      Timer.set_timeout(50, function()
+        table.insert(call_order, 1)
+        callback(nil, 1)
+      end)
+    end,
+    function(callback)
+      Timer.set_timeout(100, function()
+        table.insert(call_order, 2)
+        callback(nil, 2)
+      end)
+    end,
+    function(callback)
+      Timer.set_timeout(25, function()
+        table.insert(call_order, 3)
+        callback(nil, 3, 3)
+      end)
+    end
+  },
+  function(err, results)
+    asserts.array_equals(call_order, {3,1,2})
+    asserts.array_equals(results[1], {1})
+    asserts.array_equals(results[2], {2})
+    asserts.array_equals(results[3], {3,3})
+    test.done()
+  end)
+end
+
 bourbon.run(exports)

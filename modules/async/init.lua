@@ -9,7 +9,6 @@ local math = require 'math'
 --
 -- series -- todo
 -- parallel -- todo
--- waterfall -- todo
 -- auto -- todo
 -- queue -- todo
 --
@@ -463,6 +462,18 @@ async.waterfall = function(tasks, callback)
     end
   end
   wrapIterator(async.iterator(tasks))()
+end
+
+-- Parallel
+async.parallel = function(tasks, callback)
+  callback = callback or function() end
+  async.map(tasks, function(fn, callback)
+    if fn then
+      fn(function(err, ...)
+        callback(err, {...})
+      end)
+    end
+  end, callback)
 end
 
 return async
