@@ -1,8 +1,8 @@
 local table = require 'table'
 local async = require "async"
 local Timer = require 'timer'
-local lunatest = require 'lunatest'
-local asserts = lunatest.asserts
+local bourbon = require 'bourbon'
+local asserts = bourbon.asserts
 
 local exports = {}
 
@@ -10,11 +10,12 @@ exports['test_forEach'] = function(test)
   local args = {}
   async.forEach({1,3,2}, function(x, callback)
     Timer.set_timeout(x*25, function()
-      table.insert(args, 1, x)
+      table.insert(args, x)
       callback()
     end)
   end, function(err)
     asserts.array_equal(args, {1,2,3})
+    test.done()
   end)
 end
 
@@ -25,6 +26,7 @@ exports['test_forEachEmpty'] = function(test)
     callback()
   end, function(err)
     asserts.True(true, "should be called")
+    test.done()
   end)
 end
 
@@ -33,19 +35,21 @@ exports['test_forEachError'] = function(test)
     callback('error');
   end, function(err)
     asserts.not_nil(err)
+    test.done()
   end);
 end
 
 exports['test_forEachSeries'] = function(test)
   local args = {}
   async.forEachSeries({1,3,2}, function(x, callback)
-    Timer.set_timeout(x*25, function()
-      table.insert(args, 1, x)
+    Timer.set_timeout(x*23, function()
+      table.insert(args, x)
       callback()
     end)
   end, function(err)
-    asserts.array_equal(args, {1, 3, 2})
+    asserts.array_equal(args, {1,3,2})
+    test.done()
   end)
 end
 
-lunatest.run(exports)
+bourbon.run(exports)
