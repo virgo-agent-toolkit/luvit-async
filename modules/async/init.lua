@@ -75,6 +75,40 @@ async.reduce = function(arr, memo, iterator, callback)
   end)
 end
 
+async.forEachLimit = function(arr, limit, iterator, callback)
+  if not arr or #arr == 0 then
+    return callback()
+  end
+  local completed = 0
+  local started = 0
+  local running = 0
+
+  local replenish
+  replenish = function()
+    if completed == #arr then
+      return callback()
+    end
+    while running < limit and started < #arr do
+      iterator(arr[started + 1], function(err)
+        if err then
+          callback(err)
+          callback = function() end
+        else
+          completed = completed + 1
+          running = running - 1
+          if completed == #arr then
+            callback()
+          else
+            replenish()
+          end
+        end
+      end)
+      started = started + 1
+      running = running + 1
+    end
+  end
+  replenish()
+end
 
 -- Map
 local _forEach = function(arr, iterator)
