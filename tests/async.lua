@@ -422,4 +422,63 @@ exports['test_parallel'] = function(test, asserts)
   end)
 end
 
+exports['test_parallelEmpty'] = function(test, asserts)
+  async.parallel({}, function(err, results)
+    asserts.equals(err, nil)
+    asserts.array_equals(results, {})
+    test.done()
+  end)
+end
+
+exports['test_parallelError'] = function(test, asserts)
+  async.parallel({
+    function(callback)
+      callback('error', 1)
+    end,
+    function(callback)
+      callback('error2', 2)
+    end
+  }, function(err, results)
+    asserts.equals(err, 'error')
+    test.done()
+  end)
+end
+
+exports['test_parallelNoCallback'] = function(test, asserts)
+  async.parallel({
+    function(callback) callback() end,
+    function(callback) callback() ; test.done() end
+  })
+end
+
+exports['test_parallelObject'] = function(test, asserts)
+  local call_order = {}
+  local ops = table.ordered()
+  ops.one = function(callback)
+    Timer.set_timeout(25, function()
+      table.insert(call_order, 1)
+      callback(nil, 1)
+    end)
+  end
+  ops.two = function(callback)
+    Timer.set_timeout(50, function()
+      table.insert(call_order, 2)
+      callback(nil, 2)
+    end)
+  end
+  ops.three = function(callback)
+    Timer.set_timeout(15, function()
+      table.insert(call_order, 3)
+      callback(nil, 3)
+    end)
+  end
+  async.parallel(ops, function(err, results)
+    asserts.array_equals(call_order, {3,1,2})
+    asserts.array_equals(results.three, {3})
+    asserts.array_equals(results.two, {2})
+    asserts.array_equals(results.one, {1})
+    test.done()
+  end)
+end
+
 bourbon.run(exports)
