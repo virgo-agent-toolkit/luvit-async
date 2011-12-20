@@ -93,4 +93,13 @@ exports['test_forEachLimit'] = function(test, asserts)
   end)
 end
 
+exports['test_forEachLimitEmptyArray'] = function(test, asserts)
+  async.forEachLimit({}, 2, function(x, callback)
+    asserts.ok(false, 'iterator should not be called')
+  end, function(err)
+    asserts.ok(true, 'should be called')
+    test.done()
+  end)
+end
+
 bourbon.run(exports)
