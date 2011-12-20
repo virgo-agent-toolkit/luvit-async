@@ -142,4 +142,19 @@ exports['test_forEachLimitZeroSize'] = function(test, asserts)
   end)
 end
 
+exports['test_forEachLimitError'] = function(test, asserts)
+  local args = {}
+  local arr = {0,1,2,3,4,5,6,7,8,9}
+  async.forEachLimit(arr, 3, function(x,callback)
+    table.insert(args, x)
+    if x == 2 then
+      callback({"error"})
+    end
+  end, function(err)
+    asserts.ok(err)
+    asserts.array_equal(args, {0,1,2})
+    test.done()
+  end)
+end
+
 bourbon.run(exports)
