@@ -1,5 +1,6 @@
 local async = {}
 
+local Timer = require 'timer'
 local table = require 'table'
 local ordered_table = require './ordered_table'
 local math = require 'math'
@@ -455,7 +456,9 @@ async.waterfall = function(tasks, callback)
         else
           table.insert(args, callback)
         end
-        iterator.run(unpack(args))
+        Timer.set_timeout(0, function()
+          iterator.run(unpack(args))
+        end)
       end
     end
   end

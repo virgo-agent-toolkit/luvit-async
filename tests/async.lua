@@ -309,4 +309,41 @@ exports['test_waterfall'] = function(test, asserts)
   end)
 end
 
+exports['test_waterfallEmptyArray'] = function(test, asserts)
+  async.waterfall({}, function(err)
+    test.done()
+  end)
+end
+
+exports['test_waterfallNoCallback'] = function(test, asserts)
+  async.waterfall({
+    function(callback)
+      callback()
+    end,
+    function(callback)
+      callback()
+      test.done()
+    end
+  })
+end
+
+exports['test_waterfallAsync'] = function(test, asserts)
+  local call_order = {}
+  async.waterfall({
+    function(callback)
+      table.insert(call_order, 1)
+      callback()
+      table.insert(call_order, 2)
+    end,
+    function(callback)
+      table.insert(call_order, 3)
+      callback()
+    end,
+    function()
+      asserts.array_equals(call_order, {1,2,3})
+      test.done()
+    end
+  })
+end
+
 bourbon.run(exports)
