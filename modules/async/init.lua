@@ -120,7 +120,7 @@ end
 local _map = function(arr, iterator)
   local results = {}
   _forEach(arr, function(x, i, a)
-    table.insert(results, 1, iterator(x, i, a))
+    table.insert(results, iterator(x, i, a))
   end)
   return results
 end
@@ -394,10 +394,7 @@ end
 -- Series
 async.series = function(tasks, callback)
   callback = callback or function() end
-  if #tasks == 0 then
-    return callback(nil, {})
-  end
-  if tasks[1] then
+  if tasks[1] or #tasks == 0 then
     async.mapSeries(tasks, function(fn, callback)
       if fn then
         fn(function(err, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)

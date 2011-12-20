@@ -162,19 +162,19 @@ exports['test_series'] = function(test, asserts)
   async.series({
     function(callback)
       Timer.set_timeout(25, function()
-        table.insert(call_order, 1, 1)
+        table.insert(call_order, 1)
         callback(nil, 1)
       end)
     end,
     function(callback)
       Timer.set_timeout(50, function()
-        table.insert(call_order, 1, 2)
+        table.insert(call_order, 2)
         callback(nil, 2)
       end)
     end,
     function(callback)
       Timer.set_timeout(15, function()
-        table.insert(call_order, 1, 3)
+        table.insert(call_order, 3)
         callback(nil, {3, 3})
       end)
     end
@@ -191,6 +191,22 @@ end
 exports['test_seriesEmptyArray'] = function(test, asserts)
   async.series({}, function(err, results)
     asserts.equals(err, nil)
+    asserts.array_equals(results, {})
+    test.done()
+  end)
+end
+
+exports['test_seriesError'] = function(test, asserts)
+  async.series({
+    function(callback)
+      callback('error')
+    end,
+    function(callback)
+      asserts.ok(false, 'should not be called')
+      callback()
+    end
+  }, function(err, results)
+    asserts.equals(err, 'error')
     asserts.array_equals(results, {})
     test.done()
   end)
