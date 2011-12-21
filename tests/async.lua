@@ -538,4 +538,62 @@ exports['test_queue'] = function(test, asserts)
   end)
 end
 
+exports['test_queueChangeConcurrency'] = function(test, asserts)
+  local call_order = {}
+  local delays = {40, 20, 60, 20}
+  local delay_index = 1
+  local q = async.queue(function(task, callback)
+    Timer.set_timeout(delays[delay_index], function()
+      table.insert(call_order, 'process '..task);
+      callback('error', 'arg');
+    end)
+    delay_index = delay_index + 1
+  end, 2)
+
+  q.push(1, function(err, arg)
+    asserts.equals(err, 'error')
+    asserts.equals(arg, 'arg')
+    asserts.equals(q.length(), 3)
+    table.insert(call_order, 'callback '.. 1)
+  end)
+  q.push(2, function(err, arg)
+    asserts.equals(err, 'error')
+    asserts.equals(arg, 'arg')
+    asserts.equals(q.length(), 2)
+    table.insert(call_order, 'callback '.. 2)
+  end)
+  q.push(3, function(err, arg)
+    asserts.equals(err, 'error')
+    asserts.equals(arg, 'arg')
+    asserts.equals(q.length(), 1)
+    table.insert(call_order, 'callback '.. 3)
+  end)
+  q.push(4, function(err, arg)
+    asserts.equals(err, 'error')
+    asserts.equals(arg, 'arg')
+    asserts.equals(q.length(), 0)
+    table.insert(call_order, 'callback '.. 4)
+  end)
+
+  asserts.equals(q.length(), 4)
+  asserts.equals(q.concurrency, 2)
+  q.concurrency = 1
+
+  Timer.set_timeout(250, function()
+    asserts.array_equals(call_order, {
+      "process 1",
+      "callback 1",
+      "process 2",
+      "callback 2",
+      "process 3",
+      "callback 3",
+      "process 4",
+      "callback 4"
+    })
+    asserts.equals(q.concurrency, 1)
+    asserts.equals(q.length(), 0)
+    test.done()
+  end)
+end
+
 bourbon.run(exports)
