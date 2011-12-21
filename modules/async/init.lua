@@ -2,13 +2,11 @@ local async = {}
 
 local Timer = require 'timer'
 local table = require 'table'
-local ordered_table = require './ordered_table'
 local Queue = require './queue'
 local math = require 'math'
 
 --[[
 -- auto -- todo
--- queue -- todo
 --]]
 
 async.forEach = function(arr, iterator, callback)
@@ -104,15 +102,8 @@ end
 
 -- Map
 local _forEach = function(arr, iterator)
-  local mt = getmetatable(arr)
-  if mt and mt.klass == 'ordered_table' then
-    for i,index,v in ordered_table.orderedPairs(arr) do
-      iterator(v, index, arr)
-    end
-  else
-    for k, v in pairs(arr) do
-      iterator(v, k, arr)
-    end
+  for k, v in pairs(arr) do
+    iterator(v, k, arr)
   end
 end
 
@@ -393,13 +384,29 @@ end
 -- Series
 async.series = function(tasks, callback)
   callback = callback or function() end
+  if tasks[1] then
     async.mapSeries(tasks, function(fn, callback)
       if fn then
-        fn(function(...)
-          callback(unpack({...}))
+        fn(function(err, ...)
+          callback(err, unpack({...}))
         end)
       end
     end, callback)
+  else
+    local _keys = {}
+    local results = {}
+    for k, v in pairs(tasks) do
+      table.insert(_keys, 1, k)
+    end
+    async.forEachSeries(_keys, function(k, callback)
+      tasks[k](function(err, ...)
+        results[k] = {...}
+        callback(err)
+      end)
+    end, function(err)
+      callback(err, results)
+    end)
+  end
 end
 
 -- Iterator

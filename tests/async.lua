@@ -221,27 +221,28 @@ end
 
 exports['test_seriesObject'] = function(test, asserts)
   local call_order = {}
-  local ops = table.ordered()
-  ops.one = function(callback)
-    Timer.set_timeout(25, function()
-      table.insert(call_order, 1)
-      callback(nil, 1)
-    end)
-  end
-  ops.two = function(callback)
-    Timer.set_timeout(50, function()
-      table.insert(call_order, 2)
-      callback(nil, 2)
-    end)
-  end
-  ops.three = function(callback)
-    Timer.set_timeout(15, function()
-      table.insert(call_order, 3)
-      callback(nil, 3)
-    end)
-  end
+  local ops = {
+    one = function(callback)
+      Timer.set_timeout(25, function()
+        table.insert(call_order, 1)
+        callback(nil, 1)
+      end)
+    end,
+    two = function(callback)
+      Timer.set_timeout(50, function()
+        table.insert(call_order, 2)
+        callback(nil, 2)
+      end)
+    end,
+    three = function(callback)
+      Timer.set_timeout(15, function()
+        table.insert(call_order, 3)
+        callback(nil, 3)
+      end)
+    end
+  }
   async.series(ops, function(err, results)
-    asserts.array_equals(call_order, {1,2,3})
+    asserts.array_equals(call_order, {2,1,3})
     asserts.array_equals(results, {three = 3, one = 1, two = 2})
     test.done()
   end)
@@ -453,7 +454,7 @@ end
 
 exports['test_parallelObject'] = function(test, asserts)
   local call_order = {}
-  local ops = table.ordered()
+  local ops = {}
   ops.one = function(callback)
     Timer.set_timeout(25, function()
       table.insert(call_order, 1)
