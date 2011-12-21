@@ -3,22 +3,12 @@ local async = {}
 local Timer = require 'timer'
 local table = require 'table'
 local ordered_table = require './ordered_table'
+local Queue = require './queue'
 local math = require 'math'
 
 --[[
---
--- series -- todo
--- parallel -- todo
 -- auto -- todo
 -- queue -- todo
---
--- iterator -- needed?
--- apply -- needed?
--- nextTick -- needed?
---
--- memoize -- todo
--- unmemoize -- todo
---
 --]]
 
 async.forEach = function(arr, iterator, callback)
@@ -474,6 +464,45 @@ async.parallel = function(tasks, callback)
       end)
     end
   end, callback)
+end
+
+-- Queue
+
+async.queue = function(worker, concurrency)
+  local workers = 0
+  local q = {}
+  q.tasks = Queue.new()
+  q.concurrency = concurrency
+  q.saturated = nil
+  q.empty = nil
+  q.drain = nil
+  q.length = function()
+    return Queue.length(q.tasks)
+  end
+  q.running = function()
+    return workers
+  end
+  q.process = function()
+    if workers < q.concurrency and q.length() > 0 then
+      local task = Queue.popleft(q.tasks)
+      if q.empty and q.length() == 0 then q.empty() end
+      workers = workers + 1
+      worker(task.data, function(...)
+        workers = workers - 1
+        if task.callback then
+          task.callback(unpack({...}))
+        end
+        if q.drain and (q.length() + workers) == 0 then q.drain() end
+        q.process()
+      end)
+    end
+  end
+  q.push = function(data, callback)
+    Queue.pushright(q.tasks, { data = data, callback = callback })
+    if q.saturated and q.length() == concurrency then q.saturated() end
+    Timer.set_timeout(0, q.process)
+  end
+  return q
 end
 
 return async
