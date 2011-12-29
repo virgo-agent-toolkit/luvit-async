@@ -1,4 +1,4 @@
-local async = require './init'
+local async = require './init.lua'
 local table = require 'table'
 local string = require 'string'
 local math = require 'math'

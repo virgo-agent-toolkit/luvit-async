@@ -2,7 +2,7 @@ local async = {}
 
 local Timer = require 'timer'
 local table = require 'table'
-local Queue = require './queue'
+local Queue = require './queue.lua'
 local math = require 'math'
 
 --[[

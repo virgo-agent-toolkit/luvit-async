@@ -2,8 +2,8 @@
 
 local table = require 'table'
 local Timer = require 'timer'
-local async = require "./init"
-local bourbon = require './bourbon'
+local async = require "./init.lua"
+local bourbon = require './bourbon.lua'
 
 local exports = {}
 
