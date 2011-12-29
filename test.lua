@@ -1,7 +1,9 @@
+#!/usr/bin/env luvit
+
 local table = require 'table'
-local async = require "async"
 local Timer = require 'timer'
-local bourbon = require 'bourbon'
+local async = require "./init"
+local bourbon = require './bourbon'
 
 local exports = {}
 
