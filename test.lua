@@ -1,7 +1,7 @@
 #!/usr/bin/env luvit
 
 local table = require 'table'
-local Timer = require 'timer'
+local timer = require 'timer'
 local async = require "./init.lua"
 local bourbon = require './bourbon'
 
@@ -10,7 +10,7 @@ local exports = {}
 exports['test_forEach'] = function(test, asserts)
   local args = {}
   async.forEach({1,3,2}, function(x, callback)
-    Timer:set_timeout(x*25, function()
+    timer.setTimeout(x*25, function()
       table.insert(args, x)
       callback()
     end)
@@ -47,7 +47,7 @@ end
 exports['test_forEachSeries'] = function(test, asserts)
   local args = {}
   async.forEachSeries({1,3,2}, function(x, callback)
-    Timer:set_timeout(x*23, function()
+    timer.setTimeout(x*23, function()
       table.insert(args, x)
       callback()
     end)
@@ -85,7 +85,7 @@ exports['test_forEachLimit'] = function(test, asserts)
   local args = {}
   local arr = {1,2,3,4,5,6,7,8,9}
   async.forEachLimit(arr, 2, function(x, callback)
-    Timer:set_timeout(x*5, function()
+    timer.setTimeout(x*5, function()
       table.insert(args, x)
       callback()
     end)
@@ -108,7 +108,7 @@ exports['test_forEachLimitExceedsSize'] = function(test, asserts)
   local args = {}
   local arr = {0,1,2,3,4,5,6,7,8,9}
   async.forEachLimit(arr, 20, function(x, callback)
-    Timer:set_timeout(x*5, function()
+    timer.setTimeout(x*5, function()
       table.insert(args, x)
       callback()
     end)
@@ -122,7 +122,7 @@ exports['test_forEachLimitEqualSize'] = function(test, asserts)
   local args = {}
   local arr = {0,1,2,3,4,5,6,7,8,9}
   async.forEachLimit(arr, 10, function(x, callback)
-    Timer:set_timeout(x*5, function()
+    timer.setTimeout(x*5, function()
       table.insert(args, x)
       callback()
     end)
@@ -163,19 +163,19 @@ exports['test_series'] = function(test, asserts)
   local call_order = {}
   async.series({
     function(callback)
-      Timer:set_timeout(25, function()
+      timer.setTimeout(25, function()
         table.insert(call_order, 1)
         callback(nil, 1)
       end)
     end,
     function(callback)
-      Timer:set_timeout(50, function()
+      timer.setTimeout(50, function()
         table.insert(call_order, 2)
         callback(nil, 2)
       end)
     end,
     function(callback)
-      Timer:set_timeout(15, function()
+      timer.setTimeout(15, function()
         table.insert(call_order, 3)
         callback(nil, {3, 3})
       end)
@@ -225,19 +225,19 @@ exports['test_seriesObject'] = function(test, asserts)
   local call_order = {}
   local ops = {
     one = function(callback)
-      Timer:set_timeout(25, function()
+      timer.setTimeout(25, function()
         table.insert(call_order, 1)
         callback(nil, 1)
       end)
     end,
     two = function(callback)
-      Timer:set_timeout(50, function()
+      timer.setTimeout(50, function()
         table.insert(call_order, 2)
         callback(nil, 2)
       end)
     end,
     three = function(callback)
-      Timer:set_timeout(15, function()
+      timer.setTimeout(15, function()
         table.insert(call_order, 3)
         callback(nil, 3)
       end)
@@ -283,7 +283,7 @@ exports['test_waterfall'] = function(test, asserts)
   async.waterfall({
     function(callback)
       table.insert(call_order, 'fn1')
-      Timer:set_timeout(0, function()
+      timer.setTimeout(0, function()
         callback(nil, 'one', 'two')
       end)
     end,
@@ -291,7 +291,7 @@ exports['test_waterfall'] = function(test, asserts)
       table.insert(call_order, 'fn2')
       asserts.equals(arg1, 'one')
       asserts.equals(arg2, 'two')
-      Timer:set_timeout(25, function()
+      timer.setTimeout(25, function()
         callback(nil, arg1, arg2, 'three')
       end)
     end,
@@ -398,19 +398,19 @@ exports['test_parallel'] = function(test, asserts)
   local call_order = {}
   async.parallel({
     function(callback)
-      Timer:set_timeout(50, function()
+      timer.setTimeout(50, function()
         table.insert(call_order, 1)
         callback(nil, 1)
       end)
     end,
     function(callback)
-      Timer:set_timeout(100, function()
+      timer.setTimeout(100, function()
         table.insert(call_order, 2)
         callback(nil, 2)
       end)
     end,
     function(callback)
-      Timer:set_timeout(25, function()
+      timer.setTimeout(25, function()
         table.insert(call_order, 3)
         callback(nil, 3, 3)
       end)
@@ -458,19 +458,19 @@ exports['test_parallelObject'] = function(test, asserts)
   local call_order = {}
   local ops = {}
   ops.one = function(callback)
-    Timer:set_timeout(25, function()
+    timer.setTimeout(25, function()
       table.insert(call_order, 1)
       callback(nil, 1)
     end)
   end
   ops.two = function(callback)
-    Timer:set_timeout(50, function()
+    timer.setTimeout(50, function()
       table.insert(call_order, 2)
       callback(nil, 2)
     end)
   end
   ops.three = function(callback)
-    Timer:set_timeout(15, function()
+    timer.setTimeout(15, function()
       table.insert(call_order, 3)
       callback(nil, 3)
     end)
@@ -489,7 +489,7 @@ exports['test_queue'] = function(test, asserts)
   local delays = {40, 20, 60, 20}
   local delay_index = 1
   local q = async.queue(function(task, callback)
-    Timer:set_timeout(delays[delay_index], function()
+    timer.setTimeout(delays[delay_index], function()
       table.insert(call_order, 'process '..task);
       callback('error', 'arg');
     end)
@@ -524,7 +524,7 @@ exports['test_queue'] = function(test, asserts)
   asserts.equals(q.length(), 4)
   asserts.equals(q.concurrency, 2)
 
-  Timer:set_timeout(200, function()
+  timer.setTimeout(200, function()
     asserts.array_equals(call_order, {
       "process 2",
       "callback 2",
@@ -546,7 +546,7 @@ exports['test_queueChangeConcurrency'] = function(test, asserts)
   local delays = {40, 20, 60, 20}
   local delay_index = 1
   local q = async.queue(function(task, callback)
-    Timer:set_timeout(delays[delay_index], function()
+    timer.setTimeout(delays[delay_index], function()
       table.insert(call_order, 'process '..task);
       callback('error', 'arg');
     end)
@@ -582,7 +582,7 @@ exports['test_queueChangeConcurrency'] = function(test, asserts)
   asserts.equals(q.concurrency, 2)
   q.concurrency = 1
 
-  Timer:set_timeout(250, function()
+  timer.setTimeout(250, function()
     asserts.array_equals(call_order, {
       "process 1",
       "callback 1",

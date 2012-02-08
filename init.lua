@@ -1,6 +1,6 @@
 local async = {}
 
-local Timer = require 'timer'
+local timer = require 'timer'
 local table = require 'table'
 local Queue = require './queue.lua'
 
@@ -451,7 +451,7 @@ async.waterfall = function(tasks, callback)
         else
           table.insert(args, callback)
         end
-        Timer:set_timeout(0, function()
+        timer.setTimeout(0, function()
           iterator.run(unpack(args))
         end)
       end
@@ -506,7 +506,7 @@ async.queue = function(worker, concurrency)
   q.push = function(data, callback)
     Queue.pushright(q.tasks, { data = data, callback = callback })
     if q.saturated and q.length() == concurrency then q.saturated() end
-    Timer:set_timeout(0, q.process)
+    timer.setTimeout(0, q.process)
   end
   return q
 end
