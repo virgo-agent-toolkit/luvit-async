@@ -20,6 +20,25 @@ exports['test_forEach'] = function(test, asserts)
   end)
 end
 
+exports['test_forEachTable'] = function(test, asserts)
+  local test_table = {
+    horse = "hay",
+    cat = "chow",
+    cow = "cud"
+  }
+  local test_table_len = 3
+  local count = 0
+
+  async.forEachTable(test_table, function(key, value, callback)
+    asserts.ok(test_table[key] == value)
+    count = count + 1
+    callback()
+  end, function(err)
+    asserts.ok(count == test_table_len)
+    test.done()
+  end)
+end
+
 exports['test_forEachEmptyArray'] = function(test, asserts)
   local args = {}
   async.forEach({}, function(x, callback)
