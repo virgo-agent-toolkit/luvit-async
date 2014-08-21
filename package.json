@@ -1,0 +1,21 @@
+{
+  "name": "luvit-async",
+  "version": "0.0.2",
+  "description": "Async library for Luvit",
+  "main": "init.lua",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/virgo-agent-toolkit/luvit-async.git"
+  },
+  "keywords": [
+    "luvit",
+    "async",
+    "lua"
+  ],
+  "author": "Ryan Phillips <ryan.phillips@rackspace.com>",
+  "license": "APACHE-2",
+  "bugs": {
+    "url": "https://github.com/virgo-agent-toolkit/luvit-async/issues"
+  },
+  "homepage": "https://github.com/virgo-agent-toolkit/luvit-async"
+}
