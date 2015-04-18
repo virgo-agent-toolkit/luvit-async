@@ -1,6 +1,6 @@
 return {
   name = "virgo-agent-toolkit/async",
-  version = "1.0.0",
+  version = "1.0.1",
   description = "async library for luvit",
   author = "Ryan Phillips <ryan.phillips@rackspace.com>",
   dependencies = {
@@ -8,6 +8,7 @@ return {
   },
   files = {
     "init.lua",
-    "queue.lua"
+    "queue.lua",
+    "package.lua"
   }
 }
