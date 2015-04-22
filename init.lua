@@ -10,7 +10,7 @@ local Queue = require './queue.lua'
 
 async.forEach = function(arr, iterator, callback)
   if #arr == 0 then
-    return callback()
+    return timer.setImmediate(callback)
   end
   local completed = 0
   for i=1,#arr do
@@ -23,7 +23,7 @@ async.forEach = function(arr, iterator, callback)
       end
       completed = completed + 1
       if completed == #arr then
-        return callback()
+        return timer.setImmediate(callback)
       end
     end)
   end
@@ -39,7 +39,7 @@ async.forEachTable = function(tab, iterator, callback)
     count = count + 1
   end
   if count == 0 then
-    return callback()
+    return timer.setImmediate(callback)
   end
   for key, value in pairs(tab) do
     iterator(key, value, function(err)
@@ -467,7 +467,7 @@ async.waterfall = function(tasks, callback)
       if err then
         local cb = callback
         callback = function() end
-        return cb(err)
+        return timer.setImmediate(function() cb(err) end)
       end
 
       local args = {...}
